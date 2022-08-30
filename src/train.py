@@ -1,9 +1,9 @@
 from data_collect import data_collect
-from eda import eda
 from preprocessing import preprocessing
 from modeling import modeling
 from evaluation import evaluation
 from utils.utils import *
+from utils.evaluation_utils import plot_all
 
 import numpy as np
 import os
@@ -15,7 +15,6 @@ if __name__ == "__main__":
     # Data collect
     data = data_collect()
     save_data(data, "data/raw_data.csv")
-    print(data.head())
     
     # EDA
     # description, corr = eda(data)
@@ -24,12 +23,14 @@ if __name__ == "__main__":
     # print(description)
     
     # preprocessing
+    # data = pd.read_csv('./data/raw_data.csv', encoding='ISO-8859-1')
     X_train, X_test, y_train, y_test = preprocessing(data)
     save_data(pd.DataFrame(X_train), "data/X_train.csv")
     save_data(pd.DataFrame(X_test), "data/X_test.csv")
     save_data(pd.Series(y_train), "data/y_train.csv")
     save_data(pd.Series(y_test), "data/y_test.csv")
     print(X_train.shape, X_test.shape)
+    print(X_train.NU_ANO_CENSO.unique(), X_test.NU_ANO_CENSO.unique())
     print(np.unique(y_train, return_counts=True))
     print(np.unique(y_test, return_counts=True))
     
@@ -38,5 +39,6 @@ if __name__ == "__main__":
     save_model(model, "models/model.pkl")
     
     # Evaluation
-    acc = evaluation(model, X_test, y_test)
-    print(acc)
+    plot_all(X_test, y_test, model)
+    # acc = evaluation(model, X_test, y_test)
+    # print(acc)

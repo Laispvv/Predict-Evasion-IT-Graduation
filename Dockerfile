@@ -1,16 +1,10 @@
 FROM python:3.8
 
-RUN pwd
 WORKDIR /projeto_maroto
-RUN pwd
 
-COPY requirements_v1.txt .
+COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-RUN ls -la
 COPY . .
-RUN ls -la
 
-WORKDIR src
-
-CMD ["python", "train.py"]
+CMD ["uvicorn", "model_api:app", "--host", "0.0.0.0"]

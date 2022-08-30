@@ -1,8 +1,9 @@
-from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from utils.processing_utils import *
 import pandas as pd
 import numpy as np
+
+from utils.utils import save_data
 
 def normalize_data(data:pd.DataFrame):
     data['QT_CARGA_HORARIA_TOTAL'] = MinMaxScaler().fit_transform(np.array(data['QT_CARGA_HORARIA_TOTAL']).reshape(-1,1))
@@ -23,32 +24,37 @@ def data_clean(data:pd.DataFrame):
     data['FINANCIAMENTO_REEMBOLSAVEL'] = data.apply(define_financiamento_reembolsavel, axis=1)
     # dropping columns
     data.drop(columns=['IN_DEFICIENCIA', 'IN_DEFICIENCIA_AUDITIVA', 'IN_DEFICIENCIA_FISICA', 'IN_DEFICIENCIA_INTELECTUAL', 'IN_DEFICIENCIA_MULTIPLA',
-             'IN_DEFICIENCIA_SURDEZ','IN_DEFICIENCIA_SURDOCEGUEIRA', 'IN_DEFICIENCIA_BAIXA_VISAO', 'IN_DEFICIENCIA_CEGUEIRA','IN_DEFICIENCIA_SUPERDOTACAO',
-             'IN_TGD_AUTISMO','IN_TGD_SINDROME_ASPERGER','IN_TGD_SINDROME_RETT','IN_TGD_TRANSTOR_DESINTEGRATIVO'], inplace=True)
+        'IN_DEFICIENCIA_SURDEZ','IN_DEFICIENCIA_SURDOCEGUEIRA', 'IN_DEFICIENCIA_BAIXA_VISAO', 'IN_DEFICIENCIA_CEGUEIRA','IN_DEFICIENCIA_SUPERDOTACAO',
+        'IN_TGD_AUTISMO','IN_TGD_SINDROME_ASPERGER','IN_TGD_SINDROME_RETT','IN_TGD_TRANSTOR_DESINTEGRATIVO'], inplace=True)
     data.drop(columns=['IN_RESERVA_ETNICO', 'IN_RESERVA_DEFICIENCIA', 'IN_RESERVA_ENSINO_PUBLICO', 'IN_RESERVA_RENDA_FAMILIAR', 'IN_RESERVA_OUTRA',], inplace=True)
     data.drop(columns=['IN_FINANCIAMENTO_ESTUDANTIL', 'IN_FIN_REEMB_FIES', 'IN_FIN_REEMB_ESTADUAL', 'IN_FIN_REEMB_MUNICIPAL', 'IN_FIN_REEMB_PROG_IES','IN_FIN_REEMB_ENT_EXTERNA','IN_FIN_REEMB_OUTRA'], inplace=True)
     data.drop(columns=['IN_FIN_NAOREEMB_PROUNI_INTEGR', 'IN_FIN_NAOREEMB_PROUNI_PARCIAL', 'IN_FIN_NAOREEMB_ESTADUAL', 'IN_FIN_NAOREEMB_MUNICIPAL', 'IN_FIN_NAOREEMB_PROG_IES', 'IN_FIN_NAOREEMB_ENT_EXTERNA','IN_FIN_NAOREEMB_OUTRA'], inplace=True)
     data.drop(columns=['IN_APOIO_ALIMENTACAO', 'IN_APOIO_BOLSA_PERMANENCIA', 'IN_APOIO_BOLSA_TRABALHO', 'IN_APOIO_MATERIAL_DIDATICO', 'IN_APOIO_MORADIA', 'IN_APOIO_TRANSPORTE'], inplace = True)
     data.drop(columns=['IN_COMPLEMENTAR_ESTAGIO','IN_COMPLEMENTAR_EXTENSAO','IN_COMPLEMENTAR_MONITORIA','IN_COMPLEMENTAR_PESQUISA'], inplace=True)      
     data.drop(columns=['IN_BOLSA_ESTAGIO', 'IN_BOLSA_EXTENSAO', 'IN_BOLSA_MONITORIA', 'IN_BOLSA_PESQUISA'], inplace=True)      
-    data.drop(columns=['CO_CINE_ROTULO', 'DT_INGRESSO_CURSO', 'CO_CURSO', 'CO_ALUNO_CURSO', 'CO_IES', 'CO_CURSO_POLO', 'IN_INGRESSO_OUTRO_TIPO_SELECAO', 'TP_SITUACAO'], inplace=True)      
+    data.drop(columns=['CO_CINE_ROTULO', 'DT_INGRESSO_CURSO', 'CO_CURSO', 'CO_ALUNO_CURSO', 'CO_IES', 'CO_CURSO_POLO', 'IN_INGRESSO_OUTRO_TIPO_SELECAO', 'TP_SITUACAO', 'ID_ALUNO'], inplace=True)      
     
     data['ANOS_DESPENDIDOS'] = (data['NU_ANO_CENSO'] - data['NU_ANO_INGRESSO'])
     
     data = normalize_data(data)
     # removing NULL data
-    df = df.loc[:, df.isin(['NULL', np.nan]).mean() == 0]
+    data = data.loc[:, data.isin(['NULL', np.nan]).mean() == 0]
+    print(data.NU_ANO_CENSO.unique())
     return data
 
 def data_split(data):
-    df_test_2019 = data.loc[data['NU_ANO_CENSO'] == 2019].copy()
-    df_train = data.loc[data['NU_ANO_CENSO'] != 2019].copy()
+    # selecting 2019 data to test and the rest to train
+    df_test_2019 = data.loc[data['NU_ANO_CENSO'] == 2019]
+    df_train = data.loc[data['NU_ANO_CENSO'] != 2019]
     
-    X_train, X_test = df_train.drop(columns=["target"]).copy(), df_test_2019.drop(columns=["target"]).copy() 
-    y_train, y_test = df_train['target'].copy(), df_test_2019['target'].copy()
+    X_train, X_test = df_train.drop(columns=["target"]), df_test_2019.drop(columns=["target"])
+    y_train, y_test = df_train['target'], df_test_2019['target']
     
     return X_train, X_test, y_train, y_test
 
 def preprocessing(data):    
+    print(data.columns)
+    data = data_clean(data)
+    save_data(data, 'data/clean_data.csv')
     X_train, X_test, y_train, y_test = data_split(data)
     return X_train, X_test, y_train, y_test
