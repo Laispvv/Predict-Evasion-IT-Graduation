@@ -8,8 +8,8 @@ import pandas as pd
 MODEL_URL = f'http://localhost:8000/predict'
 replace_map = {
     'Resultado':{
-        '0': 'Não evadido',
-        '1': 'Evadido'
+        0: '😄 Não evadido',
+        1: '😢 Evadido'
     }
 }
 
@@ -56,6 +56,6 @@ if upload_file is not None:
         result_df = pd.DataFrame({'Resultado':result['prediction'], 
                                   'Probabilidade Evadir':proba_evadir,
                                   'Probabilidade de Não Evadir': proba_nao_evadir})
-        result_df.replace(replace_map)
+        result_df.replace(replace_map, inplace=True)
         st.table(result_df)
     # predict_results(MODEL_URL)

@@ -22,7 +22,9 @@ def data_collect():
     # dados_2010 = data_reduce('./data/SUP_ALUNO_2010.csv')
     # dados_2009 = data_reduce('./data/SUP_ALUNO_2009.csv')
     bases = [dados_2019, dados_2018, dados_2017, dados_2016, dados_2015]
-    # bases = [dados_2009, dados_2010, dados_2011, dados_2012, dados_2013, dados_2014, dados_2015, dados_2016, dados_2017, dados_2018, dados_2019]
+    # bases = [dados_2009, dados_2010, dados_2011, dados_2012,
+    #          dados_2013, dados_2014, dados_2015, dados_2016,
+    #          dados_2017, dados_2018, dados_2019]
     dados_2009_2019 = pd.concat(bases)
     
     return dados_2009_2019

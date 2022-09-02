@@ -17,6 +17,7 @@ def data_clean(data:pd.DataFrame):
     data = data.loc[data['TP_SITUACAO'] != 7]
     # defining the target value
     data['target'] = define_target(data)
+    data['TP_SEXO'] = define_sex(data)
     # cleaning rows
     data['TEM_DEFICIENCIA'] = data.apply(define_deficiencia, axis=1)
     data['RECEBE_BOLSA_EXTRACURRICULAR'] = data.apply(define_bolsa_extraclasse, axis=1)
@@ -37,6 +38,8 @@ def data_clean(data:pd.DataFrame):
     data['ANOS_DESPENDIDOS'] = (data['NU_ANO_CENSO'] - data['NU_ANO_INGRESSO'])
     
     data = normalize_data(data)
+    print(data.NU_ANO_CENSO.unique())
+    save_data(data, 'data/clean_data_2009_2019.csv')
     # removing NULL data
     data = data.loc[:, data.isin(['NULL', np.nan]).mean() == 0]
     print(data.NU_ANO_CENSO.unique())
@@ -46,10 +49,10 @@ def data_split(data):
     # selecting 2019 data to test and the rest to train
     df_test_2019 = data.loc[data['NU_ANO_CENSO'] == 2019]
     df_train = data.loc[data['NU_ANO_CENSO'] != 2019]
-    
+    print(df_test_2019.shape)
     X_train, X_test = df_train.drop(columns=["target"]), df_test_2019.drop(columns=["target"])
     y_train, y_test = df_train['target'], df_test_2019['target']
-    
+    print(X_test.shape)
     return X_train, X_test, y_train, y_test
 
 def preprocessing(data):    

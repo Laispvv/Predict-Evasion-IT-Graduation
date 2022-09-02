@@ -3,8 +3,8 @@ import numpy as np
 
 def define_target(data:pd.DataFrame):
     conditions = [
-    (data['TP_SITUACAO'] == 4) | (data['TP_SITUACAO'] == 5) | (data['TP_SITUACAO'] == 3),
-    (data['TP_SITUACAO'] == 2) | (data['TP_SITUACAO'] == 6)
+    (data['TP_SITUACAO'] == 4) | (data['TP_SITUACAO'] == 5),
+    (data['TP_SITUACAO'] == 2) | (data['TP_SITUACAO'] == 6) | (data['TP_SITUACAO'] == 3)
     ]
     # create a list of the values we want to assign for each condition
     values = [1, 0]
@@ -46,3 +46,13 @@ def define_bolsa_extraclasse(row):
         if row[item] == 1:
             val = 1
     return val
+
+def define_sex(data:pd.DataFrame):
+    conditions = [
+    (data['TP_SEXO'] == 1),
+    (data['TP_SEXO'] == 2)
+    ]
+    # create a list of the values we want to assign for each condition
+    values = [0, 1]
+    # create a new column and use np.select to assign values to it using our lists as arguments
+    return np.select(conditions, values)
