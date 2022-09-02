@@ -1,10 +1,7 @@
-from fastapi import FastAPI
+import json
+from fastapi import FastAPI, Request
 import pickle
-from pydantic import BaseModel
 import pandas as pd
-
-class Item(BaseModel):
-    text: str
 
 with open("models/model.pkl", "rb") as file:
     model = pickle.load(file)
@@ -13,16 +10,11 @@ app = FastAPI()
 
 
 @app.post("/predict")
-def predict():
-    colunas = 'NU_ANO_CENSO,TP_CATEGORIA_ADMINISTRATIVA,TP_ORGANIZACAO_ACADEMICA,TP_MODALIDADE_ENSINO,TP_NIVEL_ACADEMICO,TP_COR_RACA,TP_SEXO,NU_ANO_NASCIMENTO,NU_MES_NASCIMENTO,NU_DIA_NASCIMENTO,NU_IDADE,TP_NACIONALIDADE,CO_PAIS_ORIGEM,QT_CARGA_HORARIA_TOTAL,QT_CARGA_HORARIA_INTEG,IN_INGRESSO_VESTIBULAR,IN_INGRESSO_ENEM,IN_INGRESSO_AVALIACAO_SERIADA,IN_INGRESSO_SELECAO_SIMPLIFICA,IN_INGRESSO_VAGA_REMANESC,IN_INGRESSO_VAGA_PROG_ESPECIAL,IN_INGRESSO_TRANSF_EXOFFICIO,IN_INGRESSO_DECISAO_JUDICIAL,IN_RESERVA_VAGAS,IN_APOIO_SOCIAL,IN_ATIVIDADE_EXTRACURRICULAR,TP_ESCOLA_CONCLUSAO_ENS_MEDIO,TP_SEMESTRE_REFERENCIA,IN_MATRICULA,IN_CONCLUINTE,IN_INGRESSO_TOTAL,IN_INGRESSO_VAGA_NOVA,NU_ANO_INGRESSO,TEM_DEFICIENCIA,RECEBE_BOLSA_EXTRACURRICULAR,FINANCIAMENTO_NAO_REEMBOLSAVEL,FINANCIAMENTO_REEMBOLSAVEL,ANOS_DESPENDIDOS'
-    valor = '2019,2,3,1,1,1,2,2000,5,26,19,1,76,0.16170763260025875,0.007330073300733007,1,0,0,0,0,0,0,0,0,0,0,1,2,1,0,1,1,2019,0,0,0,0,0'
-    valor_v = valor.split(',')
-    colunas_v = colunas.split(',')
-    print(valor_v)
-    print(colunas_v)
-    item = pd.DataFrame(data=[valor_v], columns=colunas_v)
-    pred = model.predict(item)
-    pred_proba = model.predict_proba(item)
-    
+async def predict(item: Request):
+    request = await item.json()
+    data = pd.read_json(request)
+    data.drop(columns=['target'], inplace=True)
+    pred = model.predict(data)
+    pred_proba = model.predict_proba(data)
     return {"prediction": pred.tolist(), "prediction_proba": pred_proba.tolist()}
 
