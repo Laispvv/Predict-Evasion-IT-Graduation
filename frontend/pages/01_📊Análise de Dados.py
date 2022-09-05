@@ -4,30 +4,26 @@ import numpy as np
 import altair as alt
 
 st.markdown('### Dashboard')
-st.write(st.session_state)
-if st.session_state == None:
-    df = pd.read_csv('data/df_2019_20.csv', encoding='ISO-8859-1')
-    st.session_state['df'] = df
 
-data = st.session_state['df']
-
+df = pd.read_csv('../data/df_2019_20.csv', encoding='ISO-8859-1')
+st.session_state['df'] = df
+data = df
 # sidebar
 st.sidebar.title('⚙️ Configuração dos gráficos')
-gender =  st.sidebar.radio('Selecione o sexo para análise:', ['Ambos', 'Homens', 'Mulheres'])
-st.sidebar.multiselect('Estado', ['SC', 'SP', 'AC'])
-st.sidebar.slider('Selecione os anos', 2009, 2019)
-st.sidebar.slider('Faixa Etária', 15, 100)
-st.sidebar.multiselect('Tipo de Instituição', ['Pública', 'Privada'])
-st.sidebar.multiselect('Região', ['Norte', 'Nordeste', 'Centro-Oeste', 'Sudeste', 'Sul'])
+sexo =  st.sidebar.radio('Selecione o sexo para análise:', ['Ambos', 'Homens', 'Mulheres'])
+estado = st.sidebar.multiselect('Estado', ['SC', 'SP', 'AC'])
+anos = st.sidebar.slider('Selecione os anos', 2009, 2019)
+faixa_etaria = st.sidebar.slider('Faixa Etária', 15, 100)
+tipo_ies = st.sidebar.multiselect('Tipo de Instituição', ['Pública', 'Privada'])
+regiao = st.sidebar.multiselect('Região', ['Norte', 'Nordeste', 'Centro-Oeste', 'Sudeste', 'Sul'])
 
-st.write(data[['target', 'TP_SEXO', 'NU_ANO_CENSO']])
-
+# st.write(data[['target', 'TP_SEXO', 'NU_ANO_CENSO']])
 
 # gráficos
-if gender == 'Homens':
+if sexo == 'Homens':
     data = data.loc[data.TP_SEXO == 2]
 
-elif gender == 'Mulheres':
+elif sexo == 'Mulheres':
     data = data.loc[data.TP_SEXO == 1]
 
 chart = alt.Chart(data).mark_line().encode(

@@ -15,6 +15,7 @@ Data pipeline from data cleaning to model training for creating a model to predi
    2. ```docker run -p 8000:8000 <tag_name>```, com esse comando, direciona todas as requisições que chegam na porta 8000 da minha máquina para a porta 8000 do container.
 5. Rodando o Streamlit: ```streamlit run streamlit.py```
 6. Rodando o FastAPI: ```uvicorn model_api:app```
+7. Rodando no Macbook: para instalar o Lightgbm, primeiro é preciso instalar `brew cmake` e `brew libomp`
 
 
 
