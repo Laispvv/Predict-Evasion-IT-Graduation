@@ -5,6 +5,7 @@ import requests
 import json
 import pandas as pd
 
+
 MODEL_URL = f'http://localhost:8000/predict'
 replace_map = {
     'Resultado':{
