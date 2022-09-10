@@ -179,12 +179,21 @@ with container3:
     col1, col2 = st.columns(2)
     with col2:
         # gráfico de barras, evasão por ano e tipo de instituição
-        fig = px.bar(parametros_grafico_sexo_evasao_ies(tipo_ies), x='Ano', y='Contador', color='Sexo',  barmode='group', hover_data=['Evasao'], labels={'Sexo': ''}, text='Evasao', title='Evasão total por ano e sexo')
+        fig = px.bar(parametros_grafico_sexo_evasao_ies(tipo_ies), x='Ano',
+                     y='Contador', color='Sexo', 
+                    #  color_discrete_map={
+                    #     'Privada': 'blue',
+                    #     'Pública': 'orange'},
+                    barmode='group', hover_data=['Evasao'], labels={'Sexo': ''}, text='Evasao', title='Evasão total por ano e sexo')
         fig.update_xaxes(dtick=1)
         st.plotly_chart(fig, use_container_width=True)
     with col1:
         # gráfico de barras, evasão por ano e sexo
-        fig = px.bar(parametros_grafico_sexo_evasao_sexo(sexo), y='Ano', x='Contador', color='Sexo' , barmode='group', orientation='h',hover_data=['Evasao'], labels={'Sexo': '', 'Contador':'Contador (%)'}, text='Evasao', title='Evasão percentual por ano e sexo')
+        fig = px.bar(parametros_grafico_sexo_evasao_sexo(sexo), y='Ano', x='Contador',
+                    #  color_discrete_map={
+                    #     'Homem': 'blue',
+                    #     'Mulher': 'orange'},
+                     color='Sexo' , barmode='group', orientation='h',hover_data=['Evasao'], labels={'Sexo': '', 'Contador':'Contador (%)'}, text='Evasao', title='Evasão percentual por ano e sexo')
         fig.update_xaxes(dtick=20)
         st.plotly_chart(fig, use_container_width=True)
 

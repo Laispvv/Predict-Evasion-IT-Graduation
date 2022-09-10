@@ -9,8 +9,8 @@ import pandas as pd
 MODEL_URL = f'http://localhost:8000/predict'
 replace_map = {
     'Resultado':{
-        0: '😄 Não evadido',
-        1: '😢 Evadido'
+        0: '✅ Não evadido',
+        1: '❌ Evadido'
     }
 }
 
@@ -51,8 +51,8 @@ if upload_file is not None:
         
         proba_evadir, proba_nao_evadir  = [], []
         for item in result['prediction_proba']:
-            proba_nao_evadir.append(f'{round(item[0], 2)}%')
-            proba_evadir.append(f'{round(item[1], 2)}%')
+            proba_nao_evadir.append(f'{round(item[0]*100, 2)}%')
+            proba_evadir.append(f'{round(item[1]*100, 2)}%')
             
         result_df = pd.DataFrame({'Resultado':result['prediction'], 
                                   'Probabilidade Evadir':proba_evadir,
