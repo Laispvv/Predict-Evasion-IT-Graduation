@@ -2,12 +2,13 @@ import streamlit as st
 from PIL import Image
 import pandas as pd
 
-evaluation_model = Image.open("/Users/lais/Documents/Predict-Evasion-IT-Graduation/frontend/pages/evaluation.jpg")
 st.set_page_config(
-     page_title="Análise e Previsão de Evasão",
-     page_icon=":shark:",
+     page_title="Dropout Monitor",
+     page_icon="🎓",
      layout="wide",
 )
+
+evaluation_model = Image.open("/Users/lais/Documents/Predict-Evasion-IT-Graduation/frontend/pages/evaluation.jpg")
 
 st.title('Sobre o Modelo Criado')
 st.markdown("#### Imagem dos resultados de teste com o modelo")

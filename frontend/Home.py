@@ -4,8 +4,8 @@ import json
 import pandas as pd
 
 st.set_page_config(
-     page_title="Análise e Previsão de Evasão",
-     page_icon=":shark:",
+     page_title="Dropout Monitor",
+     page_icon="🎓",
      layout="wide",
 )
 

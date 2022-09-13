@@ -5,6 +5,11 @@ import requests
 import json
 import pandas as pd
 
+st.set_page_config(
+     page_title="Dropout Monitor",
+     page_icon="🎓",
+     layout="wide",
+)
 
 MODEL_URL = f'http://localhost:8000/predict'
 replace_map = {
@@ -60,3 +65,5 @@ if upload_file is not None:
         result_df.replace(replace_map, inplace=True)
         st.table(result_df)
     # predict_results(MODEL_URL)
+else:
+    st.write('Carregue uma base de dados ao lado para prever a evasão dos alunos')

@@ -1,21 +1,27 @@
+from turtle import color
 import streamlit as st
 import pandas as pd
 import numpy as np
-import altair as alt
-import matplotlib.pyplot as plt
-import plotly.figure_factory as ff
 import plotly.express as px
+import json
+from urllib.request import urlopen
 
 st.set_page_config(
-     page_title="Análise e Previsão de Evasão",
-     page_icon=":shark:",
+     page_title="Dropout Monitor",
+     page_icon="🎓",
      layout="wide",
 )
 
 @st.cache(persist=True)
-def load_data():
-    data = pd.read_csv('../data/clean_data_2009_2019.csv', encoding='ISO-8859-1')
+def load_data():    
+    data = pd.read_csv('../data/clean_data.csv')
     return data
+
+@st.cache(persist=True)
+def load_data_map():
+    with urlopen('https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/brazil-states.geojson') as response:
+        Brazil = json.load(response)
+    return Brazil
 
 @st.cache(persist=True)
 def soma_evasao_por_ano(data: pd.DataFrame, ano):
@@ -24,7 +30,6 @@ def soma_evasao_por_ano(data: pd.DataFrame, ano):
 
 @st.cache(persist=True)
 def soma_evasao_por_ano_valor(data: pd.DataFrame, ano, coluna, valor):
-    print('valor:     ', valor)
     result = data.loc[(data.NU_ANO_CENSO == ano) & (data[coluna].isin(valor))].groupby(['target']).size()
     return result
 
@@ -94,7 +99,6 @@ def calcular_evasao_ano_sexo(data:pd.DataFrame, coluna, range_anos, coluna_label
             sexo.append(coluna_label[0])
             evasao.append(evasao_tipo[0])
             evasao.append(evasao_tipo[1])
-        print(len(evasao), len(anos), len(sexo), len(contador))
         
     df_retorno = pd.DataFrame({'Ano':anos, 'Evasao':evasao, 'Sexo':sexo,'Contador':contador})
     return df_retorno 
@@ -109,7 +113,7 @@ def parametros_grafico_sexo_evasao_sexo(sexo):
         evasao_ano_sexo_df = calcular_evasao_ano_sexo(data, 'TP_SEXO', anos, coluna_label = ['Homem'], range_valores=[[1]], percentual=True)
     return evasao_ano_sexo_df
 
-@st.cache
+@st.cache(persist=True)
 def parametros_grafico_sexo_evasao_ies(ies):
     if ies == 'Todas':
         evasao_ano_ies_df = calcular_evasao_ano_sexo(data, 'TP_CATEGORIA_ADMINISTRATIVA', anos, coluna_label = ['Pública', 'Privada'], range_valores=[[1, 2, 3],[4, 5, 6, 7, 8, 9]])
@@ -119,6 +123,13 @@ def parametros_grafico_sexo_evasao_ies(ies):
         evasao_ano_ies_df = calcular_evasao_ano_sexo(data, 'TP_CATEGORIA_ADMINISTRATIVA', anos, coluna_label = ['Privada'], range_valores=[[4, 5, 6, 7, 8, 9]])
     return evasao_ano_ies_df
 
+@st.cache(persist=True)
+def get_dados_mapa(data):
+    df_group_state = data.groupby(['CO_UF_NASCIMENTO', 'NOME_ESTADO'])['target'].count()
+    states, states_name = zip(*df_group_state.index.to_flat_index())
+    number = df_group_state.values.tolist()
+    df_states = pd.DataFrame({'Estados':states, 'Nome Estados': states_name, 'Estudantes':number})
+    return df_states
 
 def metricas(sexo):
     if sexo == 'Todos':
@@ -136,6 +147,28 @@ def metricas(sexo):
         colb.metric("😢 Evadidos", str(round(len(data.loc[data.target == 1])/len(data), 2)) + " %")
         cold.metric("🥳 Idade Média", str(int(data.NU_IDADE.mean())) + ' anos')
 
+@st.cache(persist=True)
+def get_estados_regiao(regiao_list):
+    regioes = []
+    norte = ['Acre','Amazonas','Amapá','Pará','Rondônia','Roraima','Tocantins']
+    nordeste = ['Maranhão','Piauí','Ceará','Rio Grande do Norte','Pernambuco','Paraíba','Sergipe', 'Alagoas', 'Bahia']
+    centro = ['Mato Grosso','Mato Grosso do Sul','Goiás']
+    sudeste = ['São Paulo','Rio de Janeiro','Espírito Santo', 'Minas Gerais']
+    sul = ['Paraná','Rio Grande do Sul','Santa Catarina']
+    for regiao in regiao_list:
+        if regiao == 'Norte':
+            regioes.extend(norte)
+        elif regiao == 'Nordeste':
+            regioes.extend(nordeste)
+        elif regiao == 'Centro-Oeste':
+            regioes.extend(centro)
+        elif regiao == 'Sudeste':
+            regioes.extend(sudeste)
+        elif regiao == 'Sul':
+            regioes.extend(sul)
+    return regioes
+
+@st.cache(persist=True)
 def select_data(data:pd.DataFrame, sexo, tipo_ies, anos, faixa_etaria):
     # filtro dos dados
     if sexo == 'Homens':
@@ -150,20 +183,28 @@ def select_data(data:pd.DataFrame, sexo, tipo_ies, anos, faixa_etaria):
 
     data = data.loc[(data.NU_ANO_CENSO <= anos[1]) & (data.NU_ANO_CENSO >= anos[0])]
     data = data.loc[(data.NU_IDADE <= faixa_etaria[1]) & (data.NU_IDADE >= faixa_etaria[0])]
+    if len(estado) > 0:
+        data = data.loc[(data.NOME_ESTADO.isin(estado))]
+    if len(regiao) > 0:
+        estados_regiao = get_estados_regiao(regiao)
+        print(estados_regiao)
+        data = data.loc[(data.NOME_ESTADO.isin(estados_regiao))]
     return data
 
 data = load_data()
+
 # sidebar
+
 st.sidebar.title('⚙️ Configurações')
 sexo =  st.sidebar.radio('Selecione o sexo para análise:', ['Todos', 'Homens', 'Mulheres'])
-estado = st.sidebar.multiselect('Estado', ['SC', 'SP', 'AC'])
+estado = st.sidebar.multiselect('Estado', ['Acre','Alagoas','Amazonas','Amapá','Bahia','Ceará','Espírito Santo','Goiás','Maranhão','Minas Gerais','Mato Grosso do Sul','Mato Grosso','Pará','Paraíba','Pernambuco','Piauí','Paraná','Rio de Janeiro','Rio Grande do Norte','Rondônia','Roraima','Rio Grande do Sul','Santa Catarina','Sergipe','São Paulo','Tocantins','Distrito Federal'])
 anos = st.sidebar.slider('Selecione os anos', 2015, 2019, (2015, 2019))
 faixa_etaria = st.sidebar.slider('Faixa Etária', 15, 100, (15, 100))
 tipo_ies = st.sidebar.radio('Tipo de Instituição', ['Todas', 'Pública', 'Privada'])
 regiao = st.sidebar.multiselect('Região', ['Norte', 'Nordeste', 'Centro-Oeste', 'Sudeste', 'Sul'])
 
 data = select_data(data, sexo, tipo_ies, anos, faixa_etaria)
-
+mapa_brasil = load_data_map()
 
 container1, container2, container3 = st.container(),st.container(),st.container()
 with container1:
@@ -171,37 +212,51 @@ with container1:
         
 with container2:
     # gráfico de linha, evasão por ano
-    fig = px.line(calcular_evasao_ano(data, anos), x='Ano', y='Contador', color='Evasao', labels={'Evasao': ''}, title="Evasão total por ano")
-    fig.update_xaxes(dtick=1)
-    st.plotly_chart(fig, use_container_width=True)
+    fig_evasao_line_plot = px.line(calcular_evasao_ano(data, anos), x='Ano', y='Contador', color='Evasao', labels={'Evasao': ''}, title="Evasão total por ano")
+    fig_evasao_line_plot.update_xaxes(dtick=1)
+    st.plotly_chart(fig_evasao_line_plot, use_container_width=True)
         
 with container3:
     col1, col2 = st.columns(2)
     with col2:
         # gráfico de barras, evasão por ano e tipo de instituição
-        fig = px.bar(parametros_grafico_sexo_evasao_ies(tipo_ies), x='Ano',
+        fig_evasao_sexo_bar = px.bar(parametros_grafico_sexo_evasao_ies(tipo_ies), x='Ano',
                      y='Contador', color='Sexo', 
                     #  color_discrete_map={
                     #     'Privada': 'blue',
                     #     'Pública': 'orange'},
                     barmode='group', hover_data=['Evasao'], labels={'Sexo': ''}, text='Evasao', title='Evasão total por ano e sexo')
-        fig.update_xaxes(dtick=1)
-        st.plotly_chart(fig, use_container_width=True)
+        fig_evasao_sexo_bar.update_xaxes(dtick=1)
+        st.plotly_chart(fig_evasao_sexo_bar, use_container_width=True)
     with col1:
         # gráfico de barras, evasão por ano e sexo
-        fig = px.bar(parametros_grafico_sexo_evasao_sexo(sexo), y='Ano', x='Contador',
+        fig_evasao_tipo_ies_bar = px.bar(parametros_grafico_sexo_evasao_sexo(sexo), y='Ano', x='Contador',
                     #  color_discrete_map={
                     #     'Homem': 'blue',
                     #     'Mulher': 'orange'},
-                     color='Sexo' , barmode='group', orientation='h',hover_data=['Evasao'], labels={'Sexo': '', 'Contador':'Contador (%)'}, text='Evasao', title='Evasão percentual por ano e sexo')
-        fig.update_xaxes(dtick=20)
-        st.plotly_chart(fig, use_container_width=True)
+                     color='Sexo' , barmode='group', orientation='h',hover_data=['Evasao'], labels={'Sexo': '', 'Contador':'Contador (%)'}, text='Evasao', title='Evasão percentual por ano tipo de instituição de ensino')
+        fig_evasao_tipo_ies_bar.update_xaxes(dtick=20)
+        st.plotly_chart(fig_evasao_tipo_ies_bar, use_container_width=True)
 
-df = pd.DataFrame(
-     np.random.randn(1000, 2) / [50, 50] + [37.76, -122.4],
-     columns=['lat', 'lon'])
+df_states = get_dados_mapa(data)
 
-st.map(df)
+fig_mapa = px.choropleth_mapbox(
+ df_states, #soybean database
+ height=600,
+ mapbox_style='carto-positron',
+ width=300,
+ locations = "Estados", #define the limits on the map/geography
+ geojson = mapa_brasil,
+ center={'lat':-14.23, 'lon':-51.93},
+ zoom=3,#shape information
+ featureidkey="properties.codigo_ibg",
+ color_continuous_scale=[px.colors.qualitative.Plotly[0], px.colors.qualitative.Plotly[1]],
+ hover_name='Nome Estados',
+ hover_data=['Estudantes'],
+ color = "Estudantes", #defining the color of the scale through the database
+)
 
+fig_mapa.update_geos(fitbounds = "locations", visible = False)
+st.plotly_chart(fig_mapa, use_container_width=True)
 
 
