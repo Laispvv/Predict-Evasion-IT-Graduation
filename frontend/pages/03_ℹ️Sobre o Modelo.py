@@ -11,11 +11,21 @@ st.set_page_config(
 evaluation_model = Image.open("/Users/lais/Documents/Predict-Evasion-IT-Graduation/frontend/pages/evaluation.jpg")
 
 st.title('Sobre o Modelo Criado')
-st.markdown("#### Imagem dos resultados de teste com o modelo")
+st.markdown("O modelo escolhido para realizar a classificação foi o **LightGBM** por ter apresentado \
+     os melhores resultados entre todos os testados. Como parâmetros utillizados para ele, apenas \
+     a escolha do peso das classes foi customizada, visto que o problema possuia um desbalanceamento \
+     entre as classes evadido e não evadido.")
+st.markdown("### Resultados")
+st.markdown("Abaixo, é possível ver os resultados obtidos pelo modelo. Aqui, vale ressaltar que \
+     por questões de negócio, foi priorizado maximizar os acertos dos alunos evadidos em \
+     detrimento dos não evadidos, pois entende-se que com isso aqueles que usarem o sistema \
+     poderiam prever possíveis evasões e agir com antecedência para tentar evitar, aplicando \
+     as ações pedagógicas necessárias para dar suporte ao estudante e evitar que a evasão ocorra.")
 st.image(evaluation_model, caption='Imagem da análise dos testes realizados no modelo atual')
-st.markdown("#### Tabela de valores de F1-Score, Recall e Precision")
+st.markdown("Na tabela abaixo, foram calculados os valores para cada métrica, sendo que a \
+     **acurácia foi de 88%**. Como citado anteriormente, o modelo foi escolhido de forma a \
+     maximizar o F1-Score dos evadidos, obtendo como melhor resultado, uma taxa de 79% de acerto.")
 
 data_results = pd.DataFrame({'Precision':[0.99, 0.67], 'Recall':[0.86, 0.97], 'F1-Score':[0.92, 0.79]}, index=['Não evadidos', 'Evadidos'])
-
-st.markdown("##### Accuracy: 0.88")
+# data_results = data_results.apply(lambda x : round(x*100))
 st.table(data_results)

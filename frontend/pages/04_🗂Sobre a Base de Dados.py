@@ -18,9 +18,10 @@ st.write("Os dados utilizados são os microdados do INEP da educação superior 
          da LGPD, muito embora os dados já estivessem anonimizados.")
 st.markdown('## Filtros realizados')
 st.markdown("#### Seleção temporal")
-st.write("Para as análises presentes nesse dashboard e para a criação do modelo, \
-          a base de dados utilizada variou dos anos de 2015 à 2019, visto que\
-          estes anos possuiam a maior parte das variáveis utilizadas para a predição \
+st.write("Para as análises presentes nesse dashboard, os dados datam de 2009 até 2019 \
+          enquanto que para a criação do modelo, a base de dados utilizada variou \
+          dos anos de 2015 à 2019, visto que estes anos possuiam a maior parte \
+          das variáveis utilizadas para a predição \
           preenchidas e o modelo apresentou melhores resultados por conta disso.")
 st.markdown("#### Seleção de cursos")
 st.write("Além disso, de todas as diversas áreas de conhecimento de cursos presentes \
@@ -28,6 +29,15 @@ st.write("Além disso, de todas as diversas áreas de conhecimento de cursos pre
      sendo o crivo utilizado para definir quais são esses cursos o seguinte documento \
      governamental: [Manual para Classificação dos Cursos de Graduação e Sequenciais : Cine Brasil](https://www.gov.br/inep/pt-br/centrais-de-conteudo/acervo-linha-editorial/publicacoes-institucionais/estatisticas-e-indicadores-educacionais/manual-para-classificacao-dos-cursos-de-graduacao-e-sequenciais-cine-brasil)")
 st.markdown('## Engenharia de Features')
+st.markdown("#### Limpeza dos dados")
+st.write("O primeiro passo para a preparação do Dataset para as análises e treinamento do \
+     modelo foi realizar a junção das bases filtradas com os filtros mencionados, \
+     anteriormente, com o objetivo de trabalhar com os 10 anos de dados em uma única base.")
+st.write("Após isso, depois de concatenada, features que apresentavam valores 100% nulos foram \
+     removidas. Além disso, alguns conjuntos de features foram juntas em uma única, que resumem \
+     elas. É o caso da feature que indica se o estudante é deficiente, se possui financiamento estudantil \
+     reembolsável ou não, se possui bolsa de atividade extraclasse, entre outras. Por fim, criou-se \
+     a feature ANOS_DESPENDIDOS, que diz respeito a quantos anos o aluno está no curso atual")
 st.markdown("#### Definição da variável *target*")
 st.write("A variável target foi definida da seguinte forma:")
 st.markdown("- São considerados como **Evadidos** alunos que: \

@@ -1,4 +1,4 @@
-from turtle import color
+from turtle import color, title
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -14,7 +14,7 @@ st.set_page_config(
 
 @st.cache(persist=True)
 def load_data():    
-    data = pd.read_csv('../data/clean_data.csv')
+    data = pd.read_csv('../data/clean_data_done.csv')
     return data
 
 @st.cache(persist=True)
@@ -126,9 +126,16 @@ def parametros_grafico_sexo_evasao_ies(ies):
 @st.cache(persist=True)
 def get_dados_mapa(data):
     df_group_state = data.groupby(['CO_UF_NASCIMENTO', 'NOME_ESTADO'])['target'].count()
+    df_group_state_evadido = data.loc[data.target == 1].groupby(['CO_UF_NASCIMENTO', 'NOME_ESTADO'])['target'].count()
+    
     states, states_name = zip(*df_group_state.index.to_flat_index())
-    number = df_group_state.values.tolist()
-    df_states = pd.DataFrame({'Estados':states, 'Nome Estados': states_name, 'Estudantes':number})
+    number = df_group_state.values.tolist()    
+    number_evadido = df_group_state_evadido.values.tolist()
+    porcent = []
+    for i in range(len(number)):
+        porcent.append(round(number_evadido[i]*100/number[i], 2))
+    
+    df_states = pd.DataFrame({'Estados':states, 'Nome Estados': states_name, 'Estudantes':porcent})
     return df_states
 
 def metricas(sexo):
@@ -143,8 +150,8 @@ def metricas(sexo):
     else:
         cola, colb, colc, cold = st.columns(4)
         cola.metric("🧑‍🎓 Total de Estudantes", len(data))
-        colc.metric("😁 Não Evadidos", str(round(len(data.loc[data.target == 0])/len(data), 2)) + " %")
-        colb.metric("😢 Evadidos", str(round(len(data.loc[data.target == 1])/len(data), 2)) + " %")
+        colc.metric("😁 Não Evadidos", str(round((len(data.loc[data.target == 0])/len(data))*100, 2)) + " %")
+        colb.metric("😢 Evadidos", str(round((len(data.loc[data.target == 1])/len(data))*100, 2)) + " %")
         cold.metric("🥳 Idade Média", str(int(data.NU_IDADE.mean())) + ' anos')
 
 @st.cache(persist=True)
@@ -198,7 +205,7 @@ data = load_data()
 st.sidebar.title('⚙️ Configurações')
 sexo =  st.sidebar.radio('Selecione o sexo para análise:', ['Todos', 'Homens', 'Mulheres'])
 estado = st.sidebar.multiselect('Estado', ['Acre','Alagoas','Amazonas','Amapá','Bahia','Ceará','Espírito Santo','Goiás','Maranhão','Minas Gerais','Mato Grosso do Sul','Mato Grosso','Pará','Paraíba','Pernambuco','Piauí','Paraná','Rio de Janeiro','Rio Grande do Norte','Rondônia','Roraima','Rio Grande do Sul','Santa Catarina','Sergipe','São Paulo','Tocantins','Distrito Federal'])
-anos = st.sidebar.slider('Selecione os anos', 2015, 2019, (2015, 2019))
+anos = st.sidebar.slider('Selecione os anos', 2009, 2019, (2009, 2019))
 faixa_etaria = st.sidebar.slider('Faixa Etária', 15, 100, (15, 100))
 tipo_ies = st.sidebar.radio('Tipo de Instituição', ['Todas', 'Pública', 'Privada'])
 regiao = st.sidebar.multiselect('Região', ['Norte', 'Nordeste', 'Centro-Oeste', 'Sudeste', 'Sul'])
@@ -222,19 +229,13 @@ with container3:
         # gráfico de barras, evasão por ano e tipo de instituição
         fig_evasao_sexo_bar = px.bar(parametros_grafico_sexo_evasao_ies(tipo_ies), x='Ano',
                      y='Contador', color='Sexo', 
-                    #  color_discrete_map={
-                    #     'Privada': 'blue',
-                    #     'Pública': 'orange'},
-                    barmode='group', hover_data=['Evasao'], labels={'Sexo': ''}, text='Evasao', title='Evasão total por ano e sexo')
+                    barmode='group', hover_data=['Evasao'], labels={'Sexo': ''}, text='Evasao', title='Evasão total por ano e tipo de instituição de ensino')
         fig_evasao_sexo_bar.update_xaxes(dtick=1)
         st.plotly_chart(fig_evasao_sexo_bar, use_container_width=True)
     with col1:
         # gráfico de barras, evasão por ano e sexo
         fig_evasao_tipo_ies_bar = px.bar(parametros_grafico_sexo_evasao_sexo(sexo), y='Ano', x='Contador',
-                    #  color_discrete_map={
-                    #     'Homem': 'blue',
-                    #     'Mulher': 'orange'},
-                     color='Sexo' , barmode='group', orientation='h',hover_data=['Evasao'], labels={'Sexo': '', 'Contador':'Contador (%)'}, text='Evasao', title='Evasão percentual por ano tipo de instituição de ensino')
+                     color='Sexo' , barmode='group', orientation='h',hover_data=['Evasao'], labels={'Sexo': '', 'Contador':'Contador (%)'}, text='Evasao', title='Evasão total por ano e sexo')
         fig_evasao_tipo_ies_bar.update_xaxes(dtick=20)
         st.plotly_chart(fig_evasao_tipo_ies_bar, use_container_width=True)
 
@@ -248,12 +249,13 @@ fig_mapa = px.choropleth_mapbox(
  locations = "Estados", #define the limits on the map/geography
  geojson = mapa_brasil,
  center={'lat':-14.23, 'lon':-51.93},
- zoom=3,#shape information
+ zoom=2.7,#shape information
  featureidkey="properties.codigo_ibg",
  color_continuous_scale=[px.colors.qualitative.Plotly[0], px.colors.qualitative.Plotly[1]],
  hover_name='Nome Estados',
  hover_data=['Estudantes'],
  color = "Estudantes", #defining the color of the scale through the database
+ title = "Porcentagem de estudantes evadidos por estado de nascimento do estudante"
 )
 
 fig_mapa.update_geos(fitbounds = "locations", visible = False)
