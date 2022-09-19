@@ -8,7 +8,7 @@ st.set_page_config(
      layout="wide",
 )
 
-evaluation_model = Image.open("/Users/lais/Documents/Predict-Evasion-IT-Graduation/frontend/pages/evaluation.jpg")
+evaluation_model = Image.open("./frontend/pages/evaluation.jpg")
 
 st.title('Sobre o Modelo Criado')
 st.markdown("O modelo escolhido para realizar a classificação foi o **LightGBM** por ter apresentado \
