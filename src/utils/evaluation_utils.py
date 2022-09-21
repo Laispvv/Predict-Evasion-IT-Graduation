@@ -189,4 +189,4 @@ def plot_all(X_df, y_df, model):
   plt.title(f'Estimativas {dataset_label}', fontdict={'size': 12})
   axes[1][1].grid(True)
   plt.legend()
-  plt.savefig('evaluation.png')
+  plt.savefig('../frontend/pages/evaluation.png')

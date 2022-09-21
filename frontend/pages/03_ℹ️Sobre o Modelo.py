@@ -8,7 +8,7 @@ st.set_page_config(
      layout="wide",
 )
 
-evaluation_model = Image.open("./frontend/pages/evaluation.jpg")
+evaluation_model = Image.open("./frontend/pages/evaluation.png")
 
 st.title('Sobre o Modelo Criado')
 st.markdown("O modelo escolhido para realizar a classificação foi o **LightGBM** por ter apresentado \
@@ -26,6 +26,6 @@ st.markdown("Na tabela abaixo, foram calculados os valores para cada métrica, s
      **acurácia foi de 88%**. Como citado anteriormente, o modelo foi escolhido de forma a \
      maximizar o F1-Score dos evadidos, obtendo como melhor resultado, uma taxa de 79% de acerto.")
 
-data_results = pd.DataFrame({'Precision':[0.99, 0.67], 'Recall':[0.86, 0.97], 'F1-Score':[0.92, 0.79]}, index=['Não evadidos', 'Evadidos'])
+data_results = pd.DataFrame({'Precision':[0.88, 0.71], 'Recall':[0.82, 0.81], 'F1-Score':[0.85, 0.76]}, index=['Não evadidos', 'Evadidos'])
 # data_results = data_results.apply(lambda x : round(x*100))
 st.table(data_results)

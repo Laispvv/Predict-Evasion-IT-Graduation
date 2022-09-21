@@ -135,7 +135,7 @@ def get_dados_mapa(data):
     for i in range(len(number)):
         porcent.append(round(number_evadido[i]*100/number[i], 2))
     
-    df_states = pd.DataFrame({'Estados':states, 'Nome Estados': states_name, 'Estudantes':porcent})
+    df_states = pd.DataFrame({'Estados':states, 'Nome Estados': states_name, 'Evasão (%)':porcent})
     return df_states
 
 def metricas(sexo):
@@ -253,8 +253,8 @@ fig_mapa = px.choropleth_mapbox(
  featureidkey="properties.codigo_ibg",
  color_continuous_scale=[px.colors.qualitative.Plotly[0], px.colors.qualitative.Plotly[1]],
  hover_name='Nome Estados',
- hover_data=['Estudantes'],
- color = "Estudantes", #defining the color of the scale through the database
+ hover_data=['Evasão (%)'],
+ color = "Evasão (%)", #defining the color of the scale through the database
  title = "Porcentagem de estudantes evadidos por estado de nascimento do estudante"
 )
 
