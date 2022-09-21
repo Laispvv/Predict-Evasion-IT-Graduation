@@ -12,12 +12,11 @@ if __name__ == "__main__":
     os.chdir("..")
     
     # Data collect
-    # data = data_collect()
-    # save_data(data, "data/raw_data.csv")
+    data = data_collect()
+    save_data(data, "data/raw_data.csv")
     
     # preprocessing
-    # data = pd.read_csv('./data/raw_data.csv', encoding='ISO-8859-1')
-    data = pd.read_csv('./data/df_modelagem_2009_2019.csv', encoding='ISO-8859-1')
+    data = pd.read_csv('./data/raw_data.csv', encoding='ISO-8859-1')
     
     X_train, X_test, y_train, y_test = preprocessing(data)
     save_data(pd.DataFrame(X_train), "data/X_train.csv")

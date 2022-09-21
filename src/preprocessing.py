@@ -15,7 +15,6 @@ def data_clean(data:pd.DataFrame):
     data = data.loc[data['TP_SITUACAO'] != 7]
     # defining the target value
     data['target'] = define_target(data)
-    # data['TP_SEXO'] = define_sex(data)
     # selecting columns
     data = data[['target',
         'QT_CARGA_HORARIA_INTEG', 'NU_ANO_CENSO', 
