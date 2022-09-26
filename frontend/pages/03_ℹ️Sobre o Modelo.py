@@ -23,8 +23,8 @@ st.markdown("Abaixo, é possível ver os resultados obtidos pelo modelo. Aqui, v
      as ações pedagógicas necessárias para dar suporte ao estudante e evitar que a evasão ocorra.")
 st.image(evaluation_model, caption='Imagem da análise dos testes realizados no modelo atual')
 st.markdown("Na tabela abaixo, foram calculados os valores para cada métrica, sendo que a \
-     **acurácia foi de 88%**. Como citado anteriormente, o modelo foi escolhido de forma a \
-     maximizar o F1-Score dos evadidos, obtendo como melhor resultado, uma taxa de 79% de acerto.")
+     **acurácia foi de 89%**. Como citado anteriormente, o modelo foi escolhido de forma a \
+     maximizar o F1-Score dos evadidos, obtendo como melhor resultado, uma taxa de 76% de acerto.")
 
 data_results = pd.DataFrame({'Precision':[0.88, 0.71], 'Recall':[0.82, 0.81], 'F1-Score':[0.85, 0.76]}, index=['Não evadidos', 'Evadidos'])
 # data_results = data_results.apply(lambda x : round(x*100))

@@ -4,6 +4,7 @@ import streamlit as st
 import requests
 import json
 import pandas as pd
+import numpy as np
 
 st.set_page_config(
      page_title="Dropout Monitor",
@@ -98,7 +99,7 @@ def select_turno(select):
     elif select == 'Integral':
         return 4
     else:
-        return 0
+        return np.nan
     
 def select_cor_raca(cor_raca):
     print(cor_raca)
@@ -127,7 +128,7 @@ def select_grau_academico(grau):
     elif grau == 'Bacharelado e Licenciatura':
         return 4
     else:
-        return 0
+        return np.nan
     
 st.title('Ferramenta de Previsão de Evasão')
 
@@ -188,17 +189,22 @@ else:
         TP_CATEGORIA_ADMINISTRATIVA = select_categoria_administrativa(TP_CATEGORIA_ADMINISTRATIVA)
         TP_ORGANIZACAO_ACADEMICA = select_organizacao_academica(TP_ORGANIZACAO_ACADEMICA)
         ANOS_DESPENDIDOS = NU_ANO_CENSO - NU_ANO_INGRESSO
+        if QT_CARGA_HORARIA_INTEG == 0:
+            QT_CARGA_HORARIA_INTEG = np.nan
+        if QT_CARGA_HORARIA_TOTAL == 0:
+            QT_CARGA_HORARIA_TOTAL = np.nan
+        
         dataframe = pd.DataFrame({
-            'NU_ANO_CENSO': [NU_ANO_CENSO],
             'QT_CARGA_HORARIA_INTEG': [QT_CARGA_HORARIA_INTEG],
-            'QT_CARGA_HORARIA_TOTAL': [QT_CARGA_HORARIA_TOTAL],
-            'ANOS_DESPENDIDOS':[ANOS_DESPENDIDOS],
-            'TP_TURNO':[TP_TURNO],
-            'NU_IDADE':[NU_IDADE],
-            'TP_COR_RACA':[TP_COR_RACA],
-            'TP_GRAU_ACADEMICO':[TP_GRAU_ACADEMICO],
+            'NU_ANO_CENSO': [NU_ANO_CENSO],
             'TP_CATEGORIA_ADMINISTRATIVA':[TP_CATEGORIA_ADMINISTRATIVA],
-            'TP_ORGANIZACAO_ACADEMICA':[TP_ORGANIZACAO_ACADEMICA]
+            'QT_CARGA_HORARIA_TOTAL': [QT_CARGA_HORARIA_TOTAL],
+            'TP_ORGANIZACAO_ACADEMICA':[TP_ORGANIZACAO_ACADEMICA],
+            'TP_TURNO':[TP_TURNO],
+            'TP_COR_RACA':[TP_COR_RACA],
+            'NU_IDADE':[NU_IDADE],
+            'TP_GRAU_ACADEMICO':[TP_GRAU_ACADEMICO],
+            'ANOS_DESPENDIDOS':[ANOS_DESPENDIDOS],
         }, index=['0'])
         mostrar_resultado_previsoes(dataframe)
         

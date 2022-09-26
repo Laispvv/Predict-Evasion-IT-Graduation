@@ -39,17 +39,22 @@ def calcular_evasao_ano(data:pd.DataFrame, range_anos):
     anos = []
     sexo = []
     evasao = []
+    porcent = []
     evasao_tipo = ['Não Evadido', 'Evadido']
     for ano in range(range_anos[0], range_anos[1]+1):
+        total = len(data.loc[data['NU_ANO_CENSO'] == ano])
+        print(total)
         anos.append(ano)
         anos.append(ano)
         res = soma_evasao_por_ano(data, ano)
         contador.append(res[0])
         contador.append(res[1])
+        porcent.append(round(res[0]*100/total, 2))
+        porcent.append(round(res[1]*100/total, 2))
         evasao.append(evasao_tipo[0])
         evasao.append(evasao_tipo[1])
         
-    df_retorno = pd.DataFrame({'Ano':anos, 'Evasao':evasao, 'Contador':contador})
+    df_retorno = pd.DataFrame({'Ano':anos, 'Evasao':evasao, 'Contador':contador, 'Evasão (%)':porcent})
     return df_retorno
 
 @st.cache(persist=True)
@@ -219,7 +224,8 @@ with container1:
         
 with container2:
     # gráfico de linha, evasão por ano
-    fig_evasao_line_plot = px.line(calcular_evasao_ano(data, anos), x='Ano', y='Contador', color='Evasao', labels={'Evasao': ''}, title="Evasão total por ano")
+    fig_evasao_line_plot = px.line(calcular_evasao_ano(data, anos), x='Ano', hover_data=['Contador'],
+        y='Evasão (%)', color='Evasao', labels={'Evasao': ''}, title="Evasão total por ano")
     fig_evasao_line_plot.update_xaxes(dtick=1)
     st.plotly_chart(fig_evasao_line_plot, use_container_width=True)
         
@@ -229,13 +235,15 @@ with container3:
         # gráfico de barras, evasão por ano e tipo de instituição
         fig_evasao_sexo_bar = px.bar(parametros_grafico_sexo_evasao_ies(tipo_ies), x='Ano',
                      y='Contador', color='Sexo', 
-                    barmode='group', hover_data=['Evasao'], labels={'Sexo': ''}, text='Evasao', title='Evasão total por ano e tipo de instituição de ensino')
+                    barmode='group', hover_data=['Evasao'], labels={'Sexo': ''}, text='Evasao',
+                    title='Evasão total por ano e tipo de instituição de ensino')
         fig_evasao_sexo_bar.update_xaxes(dtick=1)
         st.plotly_chart(fig_evasao_sexo_bar, use_container_width=True)
     with col1:
         # gráfico de barras, evasão por ano e sexo
         fig_evasao_tipo_ies_bar = px.bar(parametros_grafico_sexo_evasao_sexo(sexo), y='Ano', x='Contador',
-                     color='Sexo' , barmode='group', orientation='h',hover_data=['Evasao'], labels={'Sexo': '', 'Contador':'Contador (%)'}, text='Evasao', title='Evasão total por ano e sexo')
+                     color='Sexo' , barmode='group', orientation='h',hover_data=['Evasao'],
+                     labels={'Sexo': '', 'Contador':'Contador (%)'}, text='Evasao', title='Evasão total por ano e sexo')
         fig_evasao_tipo_ies_bar.update_xaxes(dtick=20)
         st.plotly_chart(fig_evasao_tipo_ies_bar, use_container_width=True)
 
